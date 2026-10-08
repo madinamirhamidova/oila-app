@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Oila</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{
+  --fb-bg2:#f1f2f6; --fb-card:#ffffff; --fb-text:#15181d; --fb-hint:#8a8f98; --fb-btn:#2ea66f; --fb-btn-text:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --fb-bg2:#0e1621; --fb-card:#17212b; --fb-text:#f2f4f7; --fb-hint:#7d8b99; --fb-btn:#3fb27f; }
+}
+:root{
+  --bg: var(--tg-theme-secondary-bg-color, var(--fb-bg2));
+  --card: var(--tg-theme-section-bg-color, var(--tg-theme-bg-color, var(--fb-card)));
+  --text: var(--tg-theme-text-color, var(--fb-text));
+  --hint: var(--tg-theme-hint-color, var(--fb-hint));
+  --accent: var(--tg-theme-button-color, var(--fb-btn));
+  --accent-text: var(--tg-theme-button-text-color, var(--fb-btn-text));
+  --green:#2fa36b; --red:#e2513d; --line: color-mix(in srgb, var(--hint) 22%, transparent);
+  --soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+.hidden{display:none!important}
+#app{max-width:640px;margin:0 auto;padding:12px 16px calc(84px + env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;justify-content:space-between;margin:4px 0 14px}
+.top h1{margin:0;font-size:22px;letter-spacing:-.3px}
+.top .sub{color:var(--hint);font-size:13px}
+.icon-btn{width:40px;height:40px;border-radius:12px;background:var(--card);font-size:18px}
+.seg{display:flex;background:var(--card);border-radius:12px;padding:3px;margin-bottom:12px}
+.seg button{flex:1;padding:8px 4px;border-radius:9px;font-size:14px;color:var(--hint);font-weight:500}
+.seg button.on{background:var(--accent);color:var(--accent-text)}
+.chips{display:flex;gap:6px;overflow-x:auto;margin:0 -16px 12px;padding:0 16px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{white-space:nowrap;padding:6px 12px;border-radius:999px;background:var(--card);font-size:13px;border:1px solid var(--line)}
+.chip.on{background:var(--soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.card{background:var(--card);border-radius:var(--r);padding:12px 14px;margin-bottom:10px}
+.slot{display:flex;align-items:center;gap:12px;width:100%;text-align:left}
+.slot .emo{font-size:26px;width:44px;height:44px;border-radius:12px;background:var(--soft);display:grid;place-items:center;flex:none}
+.slot .body{flex:1;min-width:0}
+.slot .lbl{font-size:12px;color:var(--hint);text-transform:uppercase;letter-spacing:.4px}
+.slot .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{font-size:12px;color:var(--hint)}
+.reroll{width:36px;height:36px;border-radius:10px;background:var(--bg);font-size:16px;flex:none}
+.btn{display:block;width:100%;padding:13px;border-radius:12px;background:var(--card);font-weight:600;text-align:center;margin-bottom:10px}
+.btn.primary{background:var(--accent);color:var(--accent-text)}
+.btn.danger{color:var(--red)}
+.row2{display:flex;gap:10px}.row2 .btn{flex:1}
+.total{display:flex;justify-content:space-between;color:var(--hint);font-size:13px;margin:2px 4px 12px}
+.day h3{margin:0 0 6px;font-size:14px;display:flex;justify-content:space-between}
+.day h3 span{color:var(--hint);font-weight:400}
+.day.now{outline:2px solid var(--accent)}
+.mini{display:flex;gap:8px;padding:5px 0;width:100%;text-align:left;font-size:14px;border-top:1px solid var(--line)}
+.mini:first-of-type{border-top:0}
+.search{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--card);margin-bottom:10px;outline:none}
+.rcard{display:flex;gap:12px;align-items:center;width:100%;text-align:left}
+.empty{text-align:center;color:var(--hint);padding:28px 8px}
+.check{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:9px 0;border-top:1px solid var(--line)}
+.check:first-child{border-top:0}
+.box{width:22px;height:22px;border-radius:7px;border:2px solid var(--line);display:grid;place-items:center;font-size:13px;flex:none}
+.check.done .box{background:var(--accent);border-color:var(--accent);color:var(--accent-text)}
+.check.done .t{text-decoration:line-through;color:var(--hint)}
+.check .c{margin-left:auto;font-size:12px;color:var(--hint)}
+/* finance */
+.month{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.month b{font-size:17px}
+.month button{width:38px;height:38px;border-radius:10px;background:var(--card);font-size:18px}
+.sum{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.sum .card{margin:0}
+.sum .k{font-size:12px;color:var(--hint)}
+.sum .v{font-size:17px;font-weight:700;margin-top:2px}
+.sum .full{grid-column:1/-1}
+.sum .full .v{font-size:24px}
+.pos{color:var(--green)}.neg{color:var(--red)}
+.bar{height:8px;border-radius:99px;background:var(--bg);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.bar.over i{background:var(--red)}
+.catrow{margin:8px 0}
+.catrow .h{display:flex;justify-content:space-between;font-size:14px}
+.sec{font-size:13px;color:var(--hint);text-transform:uppercase;letter-spacing:.4px;margin:16px 4px 6px}
+.tx{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:9px 0;border-top:1px solid var(--line)}
+.tx:first-child{border-top:0}
+.tx .emo{font-size:20px;width:38px;height:38px;border-radius:11px;background:var(--bg);display:grid;place-items:center;flex:none}
+.tx .body{flex:1;min-width:0}
+.tx .body div:first-child{font-weight:500}
+.tx .amt{font-weight:700;white-space:nowrap}
+/* tabs */
+.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+.tabs button{flex:1;padding:6px;border-radius:12px;color:var(--hint);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tabs button span:first-child{font-size:22px}
+.tabs button.on{color:var(--accent);font-weight:600}
+/* sheet */
+.sheet-wrap{position:fixed;inset:0;z-index:20}
+.sheet-bg{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-width:640px;margin:0 auto;max-height:90vh;overflow:auto;background:var(--bg);border-radius:20px 20px 0 0;padding:8px 16px calc(20px + env(safe-area-inset-bottom));animation:up .22s ease}
+@keyframes up{from{transform:translateY(40px);opacity:.4}}
+.grab{width:40px;height:5px;border-radius:9px;background:var(--line);margin:4px auto 12px}
+.sheet h2{margin:0 0 4px;font-size:21px}
+.stats{display:flex;gap:8px;margin:12px 0}
+.stats div{flex:1;background:var(--card);border-radius:12px;padding:8px;text-align:center;font-size:12px;color:var(--hint)}
+.stats b{display:block;font-size:16px;color:var(--text)}
+.note{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:12px}
+.ing{list-style:none;margin:0;padding:0}
+.ing li{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line)}
+.ing li:first-child{border-top:0}
+.ing li span{color:var(--hint);text-align:right}
+.steps{margin:0;padding-left:20px}.steps li{margin:6px 0}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:13px;color:var(--hint);margin:0 4px 6px}
+.input{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--card);outline:none}
+.input.big{font-size:26px;font-weight:700;text-align:center}
+.grid{display:flex;flex-wrap:wrap;gap:6px}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:rgba(20,20,20,.88);color:#fff;padding:9px 16px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30}
+.toast.show{opacity:1}
+.loading{text-align:center;color:var(--hint);padding:60px 0}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div><h1 id="hTitle">Oila</h1><div class="sub" id="hSub"></div></div>
+    <button class="icon-btn" data-a="settings" aria-label="Settings">⚙️</button>
+  </header>
+  <main id="view"><div class="loading">…</div></main>
+</div>
+<nav class="tabs" id="tabs"></nav>
+<div id="sheetWrap" class="sheet-wrap hidden"><div class="sheet-bg" data-a="close"></div><div class="sheet" id="sheet"></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+/* ================= Telegram ================= */
+const tg = window.Telegram && window.Telegram.WebApp;
+const inTG = !!(tg && tg.initData);
+if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
+const useCloud = !!(inTG && tg.isVersionAtLeast && tg.isVersionAtLeast('6.9') && tg.CloudStorage);
+function haptic(kind){ try{ if(inTG) kind==='ok'?tg.HapticFeedback.notificationOccurred('success'):tg.HapticFeedback.impactOccurred('light'); }catch(e){} }
+
+/* ================= Storage (Telegram CloudStorage, chunked; localStorage fallback) ================= */
+const CHUNK = 3800;
+const cloudGet = keys => new Promise(res => tg.CloudStorage.getItems(keys, (err, v) => res(err ? {} : (v || {}))));
+const cloudSet = (k, v) => new Promise(res => tg.CloudStorage.setItem(k, v, () => res()));
+const cloudDel = ks => new Promise(res => tg.CloudStorage.removeItems(ks, () => res()));
+const Store = {
+  _n: {},
+  async get(key){
+    if (!useCloud) { try { const v = localStorage.getItem('fam_' + key); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+    const meta = await cloudGet([key + '_n']);
+    const n = parseInt(meta[key + '_n'] || '0', 10); this._n[key] = n;
+    if (!n) return null;
+    const keys = Array.from({length:n}, (_, i) => key + '_' + i);
+    const vals = await cloudGet(keys);
+    try { return JSON.parse(keys.map(k => vals[k] || '').join('')); } catch (e) { return null; }
+  },
+  async set(key, obj){
+    const s = JSON.stringify(obj);
+    if (!useCloud) { try { localStorage.setItem('fam_' + key, s); } catch (e) {} return; }
+    const parts = []; for (let i = 0; i < s.length; i += CHUNK) parts.push(s.slice(i, i + CHUNK));
+    for (let i = 0; i < parts.length; i++) await cloudSet(key + '_' + i, parts[i]);
+    await cloudSet(key + '_n', String(parts.length));
+    const old = this._n[key] || 0;
+    if (old > parts.length) await cloudDel(Array.from({length: old - parts.length}, (_, i) => key + '_' + (parts.length + i)));
+    this._n[key] = parts.length;
+  }
+};
+const timers = {};
+function save(key){ clearTimeout(timers[key]); timers[key] = setTimeout(() => Store.set(key, key === 'cfg' ? cfg : key === 'menu' ? menu : tx), 400); }
+
+/* ================= i18n ================= */
+const T = {
+uz:{app:"Oila",hi:"Assalomu alaykum",tabMenu:"Menyu",tabFin:"Moliya",today:"Bugun",week:"Hafta",recipes:"Retseptlar",shop:"Xarid",
+breakfast:"Nonushta",soup:"Sho'rva",main:"Asosiy taom",salad:"Salat",dessert:"Shirinlik",
+all:"Hammasi",uzbek:"O'zbek",turkic:"Turk",intl:"Xalqaro",
+newMenu:"🔄 Yangi menyu",newWeek:"🔄 Haftani qayta tuzish",toShop:"🛒 Xarid ro'yxati",kcal:"kkal",min:"daq",perServ:"1 porsiya",
+ingredients:"Masalliqlar",steps:"Tayyorlash",why:"Nega foydali",
+search:"Qidirish…",favs:"❤️ Sevimlilar",addFav:"🤍 Sevimlilarga",inFav:"❤️ Sevimlida",toToday:"Bugungi menyuga",added:"Menyuga qo'shildi",
+dayTotal:"Kunlik jami (1 kishi)",shopHint:"Shu haftalik menyu asosida",shopClear:"Belgilanganlarni tozalash",inRecipes:"retsept",noFound:"Hech narsa topilmadi",
+income:"Kirim",expense:"Chiqim",balance:"Qoldiq",amount:"Summa",category:"Kategoriya",note:"Izoh",date:"Sana",who:"Kim",save:"Saqlash",delete:"O'chirish",
+noTx:"Bu oyda hali yozuv yo'q",byCat:"Chiqimlar tarkibi",budget:"Oylik byudjet",left:"qoldi",over:"oshib ketdi",history:"Yozuvlar",
+settings:"Sozlamalar",language:"Til",members:"Oila a'zolari",addMember:"Qo'shish",memberPh:"Ism…",budgetPh:"Masalan: 8 000 000",
+storeCloud:"Ma'lumotlar Telegram bulutida saqlanadi — telefon va kompyuterda bir xil.",storeLocal:"Test rejimi: ma'lumotlar shu brauzerda saqlanadi.",
+saved:"Saqlandi",deleted:"O'chirildi",enterAmount:"Summani kiriting",confirmDel:"Bu yozuvni o'chirasizmi?",cur:"so'm",notePh:"Masalan: bozor, svet puli…",
+days:["Dushanba","Seshanba","Chorshanba","Payshanba","Juma","Shanba","Yakshanba"],
+months:["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"],
+defMembers:["Ota","Ona","Bolalar"]},
+en:{app:"Family",hi:"Hello",tabMenu:"Menu",tabFin:"Finance",today:"Today",week:"Week",recipes:"Recipes",shop:"Shopping",
+breakfast:"Breakfast",soup:"Soup",main:"Main",salad:"Salad",dessert:"Dessert",
+all:"All",uzbek:"Uzbek",turkic:"Turkish",intl:"International",
+newMenu:"🔄 New menu",newWeek:"🔄 Rebuild week",toShop:"🛒 Shopping list",kcal:"kcal",min:"min",perServ:"per serving",
+ingredients:"Ingredients",steps:"Method",why:"Why it's good",
+search:"Search…",favs:"❤️ Favourites",addFav:"🤍 Favourite",inFav:"❤️ Favourited",toToday:"Add to today",added:"Added to menu",
+dayTotal:"Daily total (1 person)",shopHint:"Based on this week's menu",shopClear:"Clear checked",inRecipes:"recipes",noFound:"Nothing found",
+income:"Income",expense:"Expense",balance:"Balance",amount:"Amount",category:"Category",note:"Note",date:"Date",who:"Who",save:"Save",delete:"Delete",
+noTx:"No entries this month yet",byCat:"Spending breakdown",budget:"Monthly budget",left:"left",over:"over",history:"Entries",
+settings:"Settings",language:"Language",members:"Family members",addMember:"Add",memberPh:"Name…",budgetPh:"e.g. 8 000 000",
+storeCloud:"Data is saved in Telegram Cloud — same on phone and desktop.",storeLocal:"Test mode: data is saved in this browser.",
+saved:"Saved",deleted:"Deleted",enterAmount:"Enter an amount",confirmDel:"Delete this entry?",cur:"UZS",notePh:"e.g. bazaar, electricity…",
+days:["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+months:["January","February","March","April","May","June","July","August","September","October","November","December"],
+defMembers:["Dad","Mom","Kids"]}
+};
+
+/* ================= Recipes ================= */
+/* [id, cuisine, category, kcal/serving, minutes, nameUz, nameEn, ingUz, ingEn, stepsUz, stepsEn, noteUz, noteEn] */
+const RAW = [
+["b1","intl","breakfast",320,10,"Suli bo'tqasi mevalar bilan","Oatmeal with fruit & nuts","Suli yormasi: 60 g; Sut yoki suv: 250 ml; Banan: 1 dona; Mavsumiy mevalar: 1 hovuch; Yong'oq: 15 g; Asal: 1 ch.q.","Rolled oats: 60 g; Milk or water: 250 ml; Banana: 1; Seasonal fruit: 1 handful; Walnuts: 15 g; Honey: 1 tsp","Sulini sutda 5–7 daqiqa qaynating.|Ustiga banan va mevalarni soling.|Yong'oq sepib, asal qo'shing.","Simmer oats in milk for 5–7 minutes.|Top with sliced banana and fruit.|Sprinkle walnuts, drizzle honey.","Tolaga boy — uzoq to'q tutadi, qondagi shakarni barqaror saqlaydi.","High in fibre — keeps you full and blood sugar steady."],
+["b2","turkic","breakfast",280,15,"Menemen","Menemen (Turkish eggs & tomato)","Tuxum: 3 dona; Pomidor: 2 dona; Bulg'or qalampiri: 1 dona; Piyoz: 1/2 dona; Zaytun moyi: 1 osh.q.; Tuz, qalampir","Eggs: 3; Tomatoes: 2; Bell pepper: 1; Onion: 1/2; Olive oil: 1 tbsp; Salt, pepper","Piyoz va qalampirni zaytun moyida yumshating.|Pomidor qo'shib, 5 daqiqa dimlang.|Tuxumni chaqib, sekin aralashtirib pishiring.","Soften onion and pepper in olive oil.|Add tomato and stew 5 minutes.|Crack in eggs and stir gently until set.","Oqsil va likopinga boy, 15 daqiqada tayyor.","Rich in protein and lycopene, ready in 15 minutes."],
+["b3","uzbek","breakfast",300,5,"Suzma, ko'katlar va to'liq donli non","Suzma with herbs & wholegrain bread","Suzma: 150 g; Ukrop va kashnich: 1 bog'; Bodring: 1 dona; To'liq donli non: 2 bo'lak; Zaytun moyi: 1 ch.q.","Suzma (strained yogurt): 150 g; Dill & coriander: 1 bunch; Cucumber: 1; Wholegrain bread: 2 slices; Olive oil: 1 tsp","Ko'katlarni mayda to'g'rang.|Suzmaga ko'kat, tuz va moy qo'shib aralashtiring.|Bodring va non bilan torting.","Finely chop the herbs.|Mix into suzma with salt and oil.|Serve with cucumber and bread.","Probiotik va oqsil manbai — ichak uchun foydali.","Probiotics and protein — good for digestion."],
+["b4","uzbek","breakfast",290,30,"Yengil shirguruch","Light milk rice porridge","Guruch: 60 g; Kam yog'li sut: 300 ml; Suv: 150 ml; Mayiz: 1 osh.q.; Doljin: chimdim","Rice: 60 g; Low-fat milk: 300 ml; Water: 150 ml; Raisins: 1 tbsp; Cinnamon: pinch","Guruchni suvda yarim pishguncha qaynating.|Sut qo'shib, past olovda quyulguncha pishiring.|Shakar o'rniga mayiz va doljin qo'shing.","Boil rice in water until half done.|Add milk and simmer until thick.|Sweeten with raisins and cinnamon instead of sugar.","An'anaviy taom, shakarsiz — bolalar uchun ham mos.","Classic comfort food without added sugar — kid friendly."],
+["b5","intl","breakfast",330,20,"Grechka bo'tqasi tuxum bilan","Buckwheat with soft-boiled egg","Grechka: 70 g; Suv: 200 ml; Tuxum: 1 dona; Pomidor: 1 dona; Sariyog': 5 g","Buckwheat: 70 g; Water: 200 ml; Egg: 1; Tomato: 1; Butter: 5 g","Grechkani yuvib, suvda 15 daqiqa pishiring.|Tuxumni 6 daqiqa qaynating.|Sariyog', pomidor va tuxum bilan torting.","Rinse and cook buckwheat 15 minutes.|Boil the egg for 6 minutes.|Serve with butter, tomato and egg.","Temir va magniyga boy, glyutensiz.","Rich in iron and magnesium, gluten-free."],
+["b6","turkic","breakfast",380,10,"Turkcha nonushta tarelkasi","Turkish breakfast plate","Brynza (oq pishloq): 60 g; Zaytun: 8 dona; Bodring: 1 dona; Pomidor: 1 dona; Qaynatilgan tuxum: 1 dona; Ko'katlar: 1 bog'; To'liq donli non: 1 bo'lak","White cheese: 60 g; Olives: 8; Cucumber: 1; Tomato: 1; Boiled egg: 1; Fresh herbs: 1 bunch; Wholegrain bread: 1 slice","Sabzavotlarni to'g'rang.|Pishloq, zaytun va tuxumni tarelkaga tering.|Ko'kat va non bilan torting.","Slice the vegetables.|Arrange cheese, olives and egg on a plate.|Serve with herbs and bread.","Muvozanatli: oqsil, sog'lom yog' va tola.","Balanced: protein, healthy fats and fibre."],
+["b7","intl","breakfast",260,5,"Yunon yogurti parfe","Greek yogurt parfait","Quyuq yogurt: 200 g; Shakarsiz granola: 30 g; Mevalar: 1 hovuch; Chia urug'i: 1 ch.q.","Greek yogurt: 200 g; Unsweetened granola: 30 g; Berries/fruit: 1 handful; Chia seeds: 1 tsp","Stakanga yogurt soling.|Granola va meva bilan qatlamlang.|Chia sepib torting.","Spoon yogurt into a glass.|Layer granola and fruit.|Top with chia.","Oqsil va probiotikka boy, 5 daqiqada tayyor.","High protein and probiotics, ready in 5 minutes."],
+["b8","intl","breakfast",250,10,"Ismaloqli omlet","Spinach omelette","Tuxum: 2 dona; Ismaloq: 1 hovuch; Sut: 2 osh.q.; Pishloq: 20 g; Zaytun moyi: 1 ch.q.","Eggs: 2; Spinach: 1 handful; Milk: 2 tbsp; Cheese: 20 g; Olive oil: 1 tsp","Tuxumni sut bilan ko'pirting.|Ismaloqni moyda 1 daqiqa so'ldiring.|Tuxumni quyib, pishloq sepib yoping.","Whisk eggs with milk.|Wilt spinach in oil for 1 minute.|Pour in eggs, add cheese, cover to set.","Temir, folat va oqsil beradi.","Iron, folate and protein."],
+
+["s1","uzbek","soup",320,50,"Mastava","Mastava (rice & vegetable soup)","Yog'siz mol go'shti: 200 g; Guruch: 80 g; Kartoshka: 2 dona; Sabzi: 1 dona; Pomidor: 2 dona; Piyoz: 1 dona; Qatiq va ko'kat: tortish uchun","Lean beef: 200 g; Rice: 80 g; Potatoes: 2; Carrot: 1; Tomatoes: 2; Onion: 1; Yogurt & herbs: to serve","Go'sht va piyozni ozgina yog'da qovuring.|Sabzi, pomidor va suv qo'shib 20 daqiqa qaynating.|Guruch va kartoshkani solib pishiring, qatiq bilan torting.","Brown beef and onion in a little oil.|Add carrot, tomato and water; simmer 20 min.|Add rice and potato, cook through, serve with yogurt.","To'yimli va yengil — go'shtni yog'siz tanlang.","Filling yet light — choose lean meat."],
+["s2","uzbek","soup",340,60,"Moshxo'rda","Moshkhurda (mung bean soup)","Mosh: 150 g; Guruch: 60 g; Mol go'shti: 150 g; Sabzi: 1 dona; Piyoz: 1 dona; Pomidor: 1 dona; Qatiq: tortish uchun","Mung beans: 150 g; Rice: 60 g; Beef: 150 g; Carrot: 1; Onion: 1; Tomato: 1; Yogurt: to serve","Moshni 30 daqiqa qaynating.|Go'sht, piyoz va sabzini alohida qovurib, moshga qo'shing.|Guruch solib quyulguncha pishiring.","Boil mung beans for 30 minutes.|Brown meat, onion and carrot; add to beans.|Add rice and cook until thick.","Mosh — o'simlik oqsili va tolaning zo'r manbai.","Mung beans: great plant protein and fibre."],
+["s3","turkic","soup",260,35,"Mercimek sho'rvasi","Red lentil soup (mercimek)","Qizil yasmiq: 150 g; Piyoz: 1 dona; Sabzi: 1 dona; Kartoshka: 1 dona; Pomidor pastasi: 1 osh.q.; Limon: 1/2 dona","Red lentils: 150 g; Onion: 1; Carrot: 1; Potato: 1; Tomato paste: 1 tbsp; Lemon: 1/2","Piyoz va sabzini yengil qovuring.|Yasmiq, kartoshka va suv qo'shib 25 daqiqa qaynating.|Blenderda ezing, limon bilan torting.","Lightly sauté onion and carrot.|Add lentils, potato and water; simmer 25 min.|Blend smooth, serve with lemon.","Arzon, oqsilga boy va oshqozonga yengil.","Cheap, protein-rich and easy on the stomach."],
+["s4","uzbek","soup",280,60,"Sabzavotli sho'rva","Vegetable shurpa","Qo'y yoki mol go'shti: 250 g; Kartoshka: 3 dona; Sabzi: 2 dona; Bulg'or qalampiri: 1 dona; Pomidor: 2 dona; Piyoz: 1 dona; Ko'katlar: 1 bog'","Lamb or beef: 250 g; Potatoes: 3; Carrots: 2; Bell pepper: 1; Tomatoes: 2; Onion: 1; Fresh herbs: 1 bunch","Go'shtni sovuq suvga solib, ko'pigini olib qaynating.|Yirik to'g'ralgan sabzavotlarni qo'shing.|Past olovda 40 daqiqa pishirib, ko'kat seping.","Start meat in cold water, skim and boil.|Add chunky vegetables.|Simmer 40 minutes, finish with herbs.","Qovurilmagan — yog' kam, vitaminlar saqlanadi.","Not fried — low fat, vitamins preserved."],
+["s5","intl","soup",240,40,"Minestrone","Minestrone","Loviya (konserva): 200 g; Kabachok: 1 dona; Sabzi: 1 dona; Selderey: 1 poya; Pomidor: 2 dona; To'liq donli makaron: 50 g","Canned beans: 200 g; Zucchini: 1; Carrot: 1; Celery: 1 stalk; Tomatoes: 2; Wholegrain pasta: 50 g","Sabzavotlarni kubik qilib to'g'rang.|Zaytun moyida yengil qovurib, suv va pomidor qo'shing.|Loviya va makaronni solib 15 daqiqa pishiring.","Dice the vegetables.|Sauté in olive oil, add water and tomato.|Add beans and pasta, cook 15 minutes.","Sabzavot va tola ko'p, kaloriya kam.","Lots of vegetables and fibre, low calorie."],
+["s6","intl","soup",210,25,"Brokkoli krem-sho'rvasi","Broccoli cream soup","Brokkoli: 400 g; Kartoshka: 1 dona; Piyoz: 1 dona; Sut: 150 ml; Sarimsoq: 1 tishcha","Broccoli: 400 g; Potato: 1; Onion: 1; Milk: 150 ml; Garlic: 1 clove","Piyoz va sarimsoqni yumshating.|Brokkoli va kartoshkani suvda 15 daqiqa qaynating.|Sut qo'shib blenderda ezing.","Soften onion and garlic.|Boil broccoli and potato 15 minutes.|Add milk and blend smooth.","C va K vitaminlariga boy, bolalar ham yaxshi yeydi.","Rich in vitamins C and K; kids eat it too."],
+
+["m1","uzbek","main",520,70,"Yengil osh (tovuqli)","Light chicken plov","Devzira guruch: 300 g; Tovuq: 400 g; Sabzi: 400 g; Piyoz: 1 dona; No'xat: 100 g; Zira, tuz; O'simlik yog'i: 3 osh.q.","Rice: 300 g; Chicken: 400 g; Carrots: 400 g; Onion: 1; Chickpeas: 100 g; Cumin, salt; Vegetable oil: 3 tbsp","Odatdagidan ancha kam yog'da tovuq va piyozni qovuring.|Sabzi, no'xat va ziravor solib zirvak tayyorlang.|Guruchni soling, suv qo'shib dimlab pishiring.","Fry chicken and onion in much less oil than usual.|Add carrots, chickpeas and spices for the zirvak.|Add rice and water, then steam until done.","Tovuq va kam yog' — an'anaviy oshdan ancha yengil.","Chicken and less oil — far lighter than classic plov."],
+["m2","uzbek","main",380,75,"Dimlama","Dimlama (layered vegetable stew)","Mol go'shti: 400 g; Kartoshka: 3 dona; Karam: 1/4 bosh; Sabzi: 2 dona; Bulg'or qalampiri: 2 dona; Pomidor: 2 dona; Piyoz: 2 dona","Beef: 400 g; Potatoes: 3; Cabbage: 1/4 head; Carrots: 2; Bell peppers: 2; Tomatoes: 2; Onions: 2","Qozon tagiga go'sht va piyozni soling.|Ustiga sabzavotlarni qatlam-qatlam tering, tuz seping.|Qopqoqni yopib, past olovda 1 soat dimlang.","Put meat and onion at the bottom of the pot.|Layer the vegetables on top and salt.|Cover and steam on low heat for 1 hour.","O'z sharbatida pishadi — deyarli yog'siz.","Cooks in its own juices — almost no oil."],
+["m3","uzbek","main",420,80,"Qovoqli manti","Steamed pumpkin manti","Un: 400 g; Qovoq: 600 g; Piyoz: 2 dona; Zira, qalampir; Qatiq: tortish uchun","Flour: 400 g; Pumpkin: 600 g; Onions: 2; Cumin, pepper; Yogurt: to serve","Xamir qorib, 20 daqiqa dam bering.|Qovoq va piyozni mayda to'g'rab, ziravor qo'shing.|Manti tugib, mantiqasqonda 40 daqiqa bug'lang.","Make dough and rest 20 minutes.|Finely dice pumpkin and onion, season.|Fold manti and steam 40 minutes.","Bug'da pishgan, sabzavotli — yengil va to'yimli.","Steamed and vegetable-filled — light yet filling."],
+["m4","uzbek","main",360,40,"Tovuq shashlik (grilda)","Grilled chicken shashlik","Tovuq ko'kragi: 600 g; Piyoz: 2 dona; Qatiq: 100 g; Limon: 1/2 dona; Zira, qalampir","Chicken breast: 600 g; Onions: 2; Yogurt: 100 g; Lemon: 1/2; Cumin, pepper","Tovuqni qatiq, piyoz va ziravorda 2 soat marinadlang.|Sixga tering.|Grilda yoki pechda 200°C da 20 daqiqa pishiring.","Marinate chicken in yogurt, onion and spices for 2 hours.|Thread onto skewers.|Grill or bake at 200°C for 20 minutes.","Yog'siz oqsil; salat bilan ideal kechki ovqat.","Lean protein; perfect dinner with a salad."],
+["m5","uzbek","main",400,90,"Dolma (tok bargida)","Dolma in vine leaves","Tok bargi: 30 dona; Yog'siz qiyma: 400 g; Guruch: 80 g; Piyoz: 1 dona; Ko'katlar: 1 bog'; Qatiq: tortish uchun","Vine leaves: 30; Lean minced meat: 400 g; Rice: 80 g; Onion: 1; Herbs: 1 bunch; Yogurt: to serve","Qiyma, guruch, piyoz va ko'katlarni aralashtiring.|Tok bargiga o'rang.|Qozonga terib, suv qo'shib 50 daqiqa dimlang.","Mix mince, rice, onion and herbs.|Roll in vine leaves.|Pack into a pot, add water and simmer 50 minutes.","Qovurilmaydi; tok bargi antioksidantlarga boy.","Not fried; vine leaves are rich in antioxidants."],
+["m6","turkic","main",330,40,"Mercimek köftesi","Lentil köfte","Qizil yasmiq: 200 g; Mayda bulg'ur: 150 g; Piyoz: 1 dona; Pomidor pastasi: 1 osh.q.; Ko'k piyoz va petrushka: 1 bog'; Limon: 1/2 dona; Salat barglari: tortish uchun","Red lentils: 200 g; Fine bulgur: 150 g; Onion: 1; Tomato paste: 1 tbsp; Spring onion & parsley: 1 bunch; Lemon: 1/2; Lettuce leaves: to serve","Yasmiqni suv to'liq singguncha pishiring.|Issiq yasmiqqa bulg'ur qo'shib 15 daqiqa yoping.|Piyoz, pasta va ko'kat qo'shib sharcha yasang; salat bargiga o'rab yeng.","Cook lentils until all water is absorbed.|Stir in bulgur, cover 15 minutes.|Mix in onion, paste and herbs; shape and wrap in lettuce.","To'liq o'simlik oqsili — go'shtsiz kunlar uchun.","Complete plant protein — ideal meat-free day."],
+["m7","turkic","main",300,60,"İmam bayıldı","Imam bayildi (stuffed eggplant)","Baqlajon: 4 dona; Piyoz: 2 dona; Pomidor: 3 dona; Sarimsoq: 4 tishcha; Zaytun moyi: 3 osh.q.; Petrushka: 1 bog'","Eggplants: 4; Onions: 2; Tomatoes: 3; Garlic: 4 cloves; Olive oil: 3 tbsp; Parsley: 1 bunch","Baqlajonni pechda 15 daqiqa yumshating.|Piyoz, sarimsoq va pomidorni zaytun moyida dimlang.|Baqlajonni yorib, ichiga soling va 200°C da 30 daqiqa pishiring.","Roast eggplants 15 minutes to soften.|Stew onion, garlic and tomato in olive oil.|Split eggplants, fill and bake at 200°C for 30 minutes.","Qovurish o'rniga pechda — moy kam, ta'm saqlanadi.","Oven-baked instead of fried — less oil, same flavour."],
+["m8","turkic","main",340,30,"Tovuq sote bulg'ur bilan","Tavuk sote with bulgur","Tovuq ko'kragi: 500 g; Bulg'or qalampiri: 2 dona; Pomidor: 2 dona; Piyoz: 1 dona; Qalampir pastasi: 1 osh.q.; Bulg'ur: 200 g","Chicken breast: 500 g; Bell peppers: 2; Tomatoes: 2; Onion: 1; Pepper paste: 1 tbsp; Bulgur: 200 g","Tovuqni bo'lakchalab, baland olovda tez qovuring.|Piyoz, qalampir va pomidor qo'shib 10 daqiqa dimlang.|Bulg'ur garnir bilan torting.","Cut chicken and sear quickly on high heat.|Add onion, pepper and tomato; stew 10 minutes.|Serve with bulgur.","Yog'siz oqsil + to'liq don bulg'ur.","Lean protein plus wholegrain bulgur."],
+["m9","intl","main",450,30,"Pechda baliq va sabzavotlar","Baked salmon/trout & vegetables","Losos yoki forel filesi: 4 bo'lak; Brokkoli: 300 g; Sabzi: 2 dona; Limon: 1 dona; Zaytun moyi: 2 osh.q.; Sarimsoq: 2 tishcha","Salmon or trout fillets: 4; Broccoli: 300 g; Carrots: 2; Lemon: 1; Olive oil: 2 tbsp; Garlic: 2 cloves","Sabzavotlarni moy va tuz bilan aralashtirib, protvenga yoying.|Ustiga baliqni qo'yib, limon bo'laklarini tering.|200°C da 20 daqiqa pishiring.","Toss vegetables with oil and salt on a tray.|Lay fish on top with lemon slices.|Bake at 200°C for 20 minutes.","Omega-3 — yurak va miya uchun.","Omega-3 for heart and brain."],
+["m10","intl","main",220,50,"Ratatuy","Ratatouille","Baqlajon: 1 dona; Kabachok: 1 dona; Bulg'or qalampiri: 2 dona; Pomidor: 4 dona; Piyoz: 1 dona; Zaytun moyi: 2 osh.q.","Eggplant: 1; Zucchini: 1; Bell peppers: 2; Tomatoes: 4; Onion: 1; Olive oil: 2 tbsp","Sabzavotlarni yupqa doira qilib kesing.|Pomidor-piyoz sousini idish tagiga soling.|Sabzavotlarni tering, 180°C da 40 daqiqa pishiring.","Slice vegetables into thin rounds.|Spread tomato-onion sauce in a dish.|Layer vegetables and bake at 180°C for 40 minutes.","Vegetarian, kaloriya kam — garnir sifatida ham mos.","Vegetarian and light — also works as a side."],
+["m11","intl","main",400,25,"Tovuq va sabzavotli vok","Chicken & vegetable stir-fry","Tovuq ko'kragi: 400 g; Brokkoli: 200 g; Bulg'or qalampiri: 1 dona; Sabzi: 1 dona; Soya sousi: 2 osh.q.; Zanjabil va sarimsoq; Jigarrang guruch: 200 g","Chicken breast: 400 g; Broccoli: 200 g; Bell pepper: 1; Carrot: 1; Soy sauce: 2 tbsp; Ginger & garlic; Brown rice: 200 g","Guruchni pishirib qo'ying.|Tovuqni baland olovda 5 daqiqa qovuring.|Sabzavot va sousni qo'shib 5 daqiqa aralashtiring.","Cook the rice.|Stir-fry chicken on high heat 5 minutes.|Add vegetables and sauce, toss 5 minutes.","Tez, rang-barang va oqsilga boy.","Fast, colourful and protein-rich."],
+["m12","intl","main",480,40,"To'liq donli bolonyeza","Wholegrain spaghetti bolognese","To'liq donli spagetti: 300 g; Yog'siz qiyma: 400 g; Pomidor: 4 dona; Sabzi: 1 dona; Piyoz: 1 dona; Sarimsoq: 2 tishcha","Wholegrain spaghetti: 300 g; Lean mince: 400 g; Tomatoes: 4; Carrot: 1; Onion: 1; Garlic: 2 cloves","Piyoz, sabzi va qiymani qovuring.|Maydalangan pomidor qo'shib 20 daqiqa qaynating.|Spagetti bilan aralashtirib torting.","Brown onion, carrot and mince.|Add chopped tomatoes, simmer 20 minutes.|Toss with spaghetti.","Bolalar sevadi — sousga sabzavot qo'shish oson.","Kids love it — easy to hide vegetables in the sauce."],
+
+["sa1","uzbek","salad",60,10,"Achchiq-chuchuk","Achichuk (tomato & onion)","Pomidor: 3 dona; Piyoz: 1 dona; Achchiq qalampir: 1/2 dona; Rayhon: 1 bog'; Tuz","Tomatoes: 3; Onion: 1; Chili: 1/2; Basil: 1 bunch; Salt","Pomidorni yupqa yarim doira qilib kesing.|Piyozni halqa qilib, tuz bilan yengil ezing.|Aralashtirib, rayhon seping. Moysiz torting.","Slice tomatoes into thin half-moons.|Slice onion into rings, rub with salt.|Combine, add basil. Serve without oil.","Moysiz — yog'li taomlar yonida ideal.","Oil-free — perfect next to richer dishes."],
+["sa2","uzbek","salad",90,10,"Vitaminli salat","Cabbage & carrot vitamin salad","Karam: 300 g; Sabzi: 1 dona; Olma: 1 dona; Limon sharbati: 1 osh.q.; O'simlik yog'i: 1 ch.q.","Cabbage: 300 g; Carrot: 1; Apple: 1; Lemon juice: 1 tbsp; Oil: 1 tsp","Karamni ingichka to'g'rab, tuz bilan ezing.|Sabzi va olmani qirg'ichdan o'tkazing.|Limon va moy bilan aralashtiring.","Shred cabbage and rub with salt.|Grate carrot and apple.|Dress with lemon and oil.","C vitamini va tolaga boy.","Packed with vitamin C and fibre."],
+["sa3","turkic","salad",110,10,"Cho'pon salati","Çoban salatası (shepherd's salad)","Pomidor: 2 dona; Bodring: 2 dona; Bulg'or qalampiri: 1 dona; Piyoz: 1/2 dona; Petrushka: 1 bog'; Limon va zaytun moyi","Tomatoes: 2; Cucumbers: 2; Bell pepper: 1; Onion: 1/2; Parsley: 1 bunch; Lemon & olive oil","Hamma sabzavotni mayda kubik qilib to'g'rang.|Limon, zaytun moyi va tuz qo'shing.|Darhol torting.","Finely dice all vegetables.|Add lemon, olive oil and salt.|Serve immediately.","Yangi sabzavot — har kuni yeyish mumkin.","Fresh vegetables — great every day."],
+["sa4","turkic","salad",220,20,"Kısır (bulg'ur salati)","Kısır (bulgur salad)","Mayda bulg'ur: 150 g; Pomidor pastasi: 1 osh.q.; Bodring: 1 dona; Ko'k piyoz: 3 poya; Petrushka va yalpiz: 1 bog'; Limon: 1 dona; Anor: ixtiyoriy","Fine bulgur: 150 g; Tomato paste: 1 tbsp; Cucumber: 1; Spring onions: 3; Parsley & mint: 1 bunch; Lemon: 1; Pomegranate: optional","Bulg'urga issiq suv quyib 15 daqiqa yoping.|Pasta, limon va zaytun moyini qo'shing.|Ko'kat va sabzavotlarni aralashtiring.","Pour hot water over bulgur, cover 15 minutes.|Stir in paste, lemon and olive oil.|Mix in herbs and vegetables.","To'liq don — uzoq to'qlik beradi.","Wholegrain — keeps you full for longer."],
+["sa5","intl","salad",200,10,"Grek salati","Greek salad","Pomidor: 2 dona; Bodring: 1 dona; Bulg'or qalampiri: 1 dona; Qizil piyoz: 1/2 dona; Brynza: 80 g; Zaytun: 10 dona; Zaytun moyi: 1 osh.q.","Tomatoes: 2; Cucumber: 1; Bell pepper: 1; Red onion: 1/2; Feta: 80 g; Olives: 10; Olive oil: 1 tbsp","Sabzavotlarni yirik to'g'rang.|Zaytun va brynzani qo'shing.|Zaytun moyi va oregano seping.","Chop vegetables chunky.|Add olives and feta.|Drizzle olive oil, sprinkle oregano.","O'rta yer dengizi parhezi — yurak uchun foydali.","Mediterranean classic — heart-friendly."],
+["sa6","intl","salad",300,20,"Kinoa va avokado salati","Quinoa & avocado salad","Kinoa: 100 g; Avokado: 1 dona; Cherry pomidor: 10 dona; Bodring: 1 dona; Limon: 1/2 dona; Kashnich: 1 bog'","Quinoa: 100 g; Avocado: 1; Cherry tomatoes: 10; Cucumber: 1; Lemon: 1/2; Coriander: 1 bunch","Kinoani 15 daqiqa qaynatib soviting.|Avokado, pomidor va bodringni to'g'rang.|Limon, moy va kashnich bilan aralashtiring.","Cook quinoa 15 minutes, cool.|Chop avocado, tomatoes and cucumber.|Toss with lemon, oil and coriander.","To'liq oqsil va sog'lom yog'lar.","Complete protein and healthy fats."],
+["sa7","uzbek","salad",180,15,"Lavlagi va yong'oq salati","Beetroot & walnut salad","Qaynatilgan lavlagi: 2 dona; Yong'oq: 30 g; Sarimsoq: 1 tishcha; Qatiq: 3 osh.q.; Mayiz: 1 osh.q.","Boiled beetroot: 2; Walnuts: 30 g; Garlic: 1 clove; Yogurt: 3 tbsp; Raisins: 1 tbsp","Lavlagini qirg'ichdan o'tkazing.|Yong'oq, sarimsoq va mayiz qo'shing.|Mayonez o'rniga qatiq bilan aralashtiring.","Grate the beetroot.|Add walnuts, garlic and raisins.|Dress with yogurt instead of mayo.","Lavlagi — temir va tola manbai; mayonezsiz.","Beetroot brings iron and fibre; no mayo."],
+["sa8","uzbek","salad",100,10,"Turp salati qatiq bilan","Radish salad with yogurt","Ko'k turp: 1 dona; Sabzi: 1 dona; Qatiq: 3 osh.q.; Ko'katlar: 1 bog'","Green radish: 1; Carrot: 1; Yogurt: 3 tbsp; Herbs: 1 bunch","Turp va sabzini qirg'ichdan o'tkazing.|Tuz seping va 5 daqiqa qo'ying.|Qatiq va ko'kat bilan aralashtiring.","Grate radish and carrot.|Salt and rest 5 minutes.|Mix with yogurt and herbs.","Kuz-qish uchun arzon, vitaminli salat.","Cheap, vitamin-rich autumn/winter salad."],
+
+["d1","intl","dessert",180,30,"Pechda olma","Baked apples with walnuts","Olma: 4 dona; Yong'oq: 40 g; Asal: 2 ch.q.; Doljin: 1/2 ch.q.; Mayiz: 1 osh.q.","Apples: 4; Walnuts: 40 g; Honey: 2 tsp; Cinnamon: 1/2 tsp; Raisins: 1 tbsp","Olma o'zagini olib tashlang.|Ichiga yong'oq, mayiz va doljin soling.|180°C da 25 daqiqa pishirib, asal quying.","Core the apples.|Fill with walnuts, raisins and cinnamon.|Bake at 180°C for 25 minutes, drizzle honey.","Shakarsiz, tolaga boy shirinlik.","No added sugar, high in fibre."],
+["d2","uzbek","dessert",170,5,"Mevali qatiq","Fruit with homemade yogurt","Qatiq: 300 g; Olma: 1 dona; Nok: 1 dona; Anor donalari: 3 osh.q.; Asal: 1 ch.q.","Yogurt: 300 g; Apple: 1; Pear: 1; Pomegranate seeds: 3 tbsp; Honey: 1 tsp","Mevalarni kubik qilib to'g'rang.|Qatiqqa qo'shing.|Anor va asal bilan bezang.","Dice the fruit.|Fold into yogurt.|Top with pomegranate and honey.","Probiotik va vitaminlar; bolalar uchun yaxshi.","Probiotics plus vitamins; great for kids."],
+["d3","turkic","dessert",200,20,"Muhallabi (kam shakarli)","Muhallebi (light milk pudding)","Sut: 500 ml; Guruch uni yoki kraxmal: 3 osh.q.; Asal: 2 osh.q.; Vanil: chimdim; Pista: tortish uchun","Milk: 500 ml; Rice flour or starch: 3 tbsp; Honey: 2 tbsp; Vanilla: pinch; Pistachios: to serve","Sovuq sutda unni eriting.|Uzluksiz aralashtirib, quyulguncha pishiring.|Idishlarga quyib soviting, pista seping.","Dissolve flour in cold milk.|Stir constantly over heat until thick.|Pour into cups, chill, top with pistachios.","Kaltsiyga boy, an'anaviyidan ancha kam shakar.","Rich in calcium, far less sugar than usual."],
+["d4","turkic","dessert",190,60,"Behi shirinligi","Ayva tatlısı (baked quince)","Behi: 2 dona; Suv: 200 ml; Asal: 2 osh.q.; Qalampirmunchoq: 4 dona; Qatiq: 4 osh.q.","Quinces: 2; Water: 200 ml; Honey: 2 tbsp; Cloves: 4; Yogurt: 4 tbsp","Behini yarmidan kesib, urug'ini oling.|Suv, asal va qalampirmunchoq bilan idishga tering.|180°C da 50 daqiqa pishiring, qatiq bilan torting.","Halve quinces and remove seeds.|Place in a dish with water, honey and cloves.|Bake at 180°C for 50 minutes, serve with yogurt.","Kuz mevasi — tola va C vitaminiga boy.","Autumn fruit — fibre and vitamin C."],
+["d5","intl","dessert",220,5,"Chia puding","Chia pudding","Chia urug'i: 3 osh.q.; Sut yoki yogurt: 200 ml; Banan: 1/2 dona; Mevalar: 1 hovuch","Chia seeds: 3 tbsp; Milk or yogurt: 200 ml; Banana: 1/2; Fruit: 1 handful","Chiani sut bilan aralashtiring.|Muzlatkichda kamida 4 soat qoldiring.|Banan va meva bilan torting.","Stir chia into milk.|Chill at least 4 hours.|Top with banana and fruit.","Omega-3 va tola — kechqurun tayyorlab qo'yish qulay.","Omega-3 and fibre — make it the night before."],
+["d6","intl","dessert",150,15,"Finik-yong'oq sharchalari","Date & nut energy balls","Finik (xurmo): 200 g; Yong'oq yoki bodom: 100 g; Kakao: 1 osh.q.; Kokos qirindisi: 2 osh.q.","Pitted dates: 200 g; Walnuts or almonds: 100 g; Cocoa: 1 tbsp; Desiccated coconut: 2 tbsp","Finik va yong'oqni blenderda maydalang.|Kakao qo'shib, sharcha yasang.|Kokosga bulab, muzlatkichda qotiring.","Blitz dates and nuts.|Add cocoa and roll into balls.|Coat in coconut and chill.","Shakar qo'shilmagan — konfet o'rniga.","No added sugar — a candy replacement."],
+["d7","uzbek","dessert",120,5,"Mavsumiy mevalar tarelkasi","Seasonal fruit platter","Qovun yoki tarvuz: 300 g; Uzum: 1 shingil; Anor: 1 dona; Olma yoki nok: 1 dona","Melon or watermelon: 300 g; Grapes: 1 bunch; Pomegranate: 1; Apple or pear: 1","Mevalarni yuving.|Bo'laklarga kesing.|Tarelkaga chiroyli tering.","Wash the fruit.|Cut into pieces.|Arrange on a platter.","O'zbekiston mevalari — eng sog'lom shirinlik.","Uzbek fruit — the healthiest dessert there is."],
+["d8","intl","dessert",140,5,"Banan muzqaymog'i","Banana nice-cream","Muzlatilgan banan: 2 dona; Kakao yoki qulupnay: ixtiyoriy; Yong'oq pastasi: 1 ch.q.","Frozen bananas: 2; Cocoa or strawberries: optional; Nut butter: 1 tsp","Bananni bo'laklab muzlating.|Blenderda qaymoqsimon bo'lguncha aylantiring.|Darhol torting.","Slice and freeze bananas.|Blend until creamy.|Serve straight away.","Shakarsiz muzqaymoq — bolalar xursand.","Sugar-free ice cream kids love."]
+];
+const RECIPES = RAW.map(a => ({id:a[0],cu:a[1],cat:a[2],kcal:a[3],min:a[4],name:[a[5],a[6]],ing:[a[7].split('; '),a[8].split('; ')],steps:[a[9].split('|'),a[10].split('|')],note:[a[11],a[12]]}));
+const byId = id => RECIPES.find(r => r.id === id);
+const SLOTS = ['breakfast','soup','main','salad','dessert'];
+const EMO = {breakfast:'🌅',soup:'🍲',main:'🍛',salad:'🥗',dessert:'🍎'};
+const FLAG = {uzbek:'🇺🇿',turkic:'🇹🇷',intl:'🌍'};
+
+/* ================= Finance categories ================= */
+const CATS = {
+  e:[["food","🛒","Oziq-ovqat","Groceries"],["home","🏠","Uy-joy","Housing"],["util","💡","Kommunal","Utilities"],["trans","🚗","Transport","Transport"],["edu","📚","Ta'lim","Education"],["health","💊","Sog'liq","Health"],["kids","🧸","Bolalar","Kids"],["cloth","👕","Kiyim","Clothing"],["fun","🎉","Dam olish","Leisure"],["event","🎁","To'y / sovg'a","Events & gifts"],["other","📦","Boshqa","Other"]],
+  i:[["salary","💼","Maosh","Salary"],["biz","📈","Biznes","Business"],["side","💵","Qo'shimcha","Side income"],["gift","🎁","Sovg'a","Gift"],["other","📦","Boshqa","Other"]]
+};
+const catInfo = (type, k) => CATS[type].find(c => c[0] === k) || CATS[type][CATS[type].length - 1];
+
+/* ================= State ================= */
+let cfg = {lang:'uz', cuisine:'all', budget:0, members:null};
+let menu = {today:null, week:null, favs:[], shop:{}};
+let tx = []; // [id, 'i'|'e', amount, cat, 'YYYY-MM-DD', note, member]
+const ui = {tab:'menu', sub:'today', rcat:'all', q:'', favOnly:false, month:'', sheet:null, draft:null, newMember:''};
+
+/* ================= Helpers ================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const t = k => (T[cfg.lang] || T.uz)[k] ?? k;
+const li = () => cfg.lang === 'en' ? 1 : 0;
+const pad = n => String(n).padStart(2, '0');
+const iso = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const todayISO = () => iso(new Date());
+const addDays = (s, n) => { const [y,m,d] = s.split('-').map(Number); return iso(new Date(y, m - 1, d + n)); };
+const mondayISO = () => { const d = new Date(); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return iso(d); };
+const fmtNum = n => String(Math.round(+n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const money = n => fmtNum(n) + ' ' + t('cur');
+const dayLabel = s => { const [y,m,d] = s.split('-').map(Number); const wd = (new Date(y, m - 1, d).getDay() + 6) % 7; return { wd: t('days')[wd], dm: d + ' ' + t('months')[m - 1] }; };
+function toast(msg){ const el = $('#toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 1600); }
+function confirmBox(msg){ return new Promise(res => { try { if (inTG && tg.isVersionAtLeast('6.2')) return tg.showConfirm(msg, ok => res(ok)); } catch (e) {} res(window.confirm(msg)); }); }
+
+/* ================= Menu logic ================= */
+function pick(cat, avoid){
+  let pool = RECIPES.filter(r => r.cat === cat && (cfg.cuisine === 'all' || r.cu === cfg.cuisine));
+  if (!pool.length) pool = RECIPES.filter(r => r.cat === cat);
+  const fresh = pool.filter(r => !(avoid || []).includes(r.id));
+  const src = fresh.length ? fresh : pool;
+  return src[Math.floor(Math.random() * src.length)].id;
+}
+function genToday(){
+  const prev = menu.today && menu.today.s;
+  const s = {}; SLOTS.forEach(c => s[c] = pick(c, prev ? [prev[c]] : []));
+  menu.today = {date: todayISO(), s}; save('menu');
+}
+function genWeek(){
+  const used = {}; SLOTS.forEach(c => used[c] = []);
+  const days = [];
+  for (let i = 0; i < 7; i++) { const d = {}; SLOTS.forEach(c => { d[c] = pick(c, used[c]); used[c].push(d[c]); }); days.push(d); }
+  menu.week = {start: mondayISO(), days}; menu.shop = {}; save('menu');
+}
+function shopItems(){
+  const map = {};
+  (menu.week ? menu.week.days : []).forEach(d => SLOTS.forEach(c => {
+    const r = byId(d[c]); if (!r) return;
+    r.ing[li()].forEach(x => {
+      const name = x.split(':')[0].trim(); if (!name) return;
+      map[name] = (map[name] || 0) + 1;
+    });
+  }));
+  return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0]));
+}
+
+/* ================= Views ================= */
+function renderChrome(){
+  document.documentElement.lang = cfg.lang;
+  $('#hTitle').textContent = ui.tab === 'menu' ? '🍽 ' + t('tabMenu') : '💰 ' + t('tabFin');
+  const u = inTG && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  $('#hSub').textContent = t('hi') + (u && u.first_name ? ', ' + u.first_name : '') + ' 👋';
+  $('#tabs').innerHTML = [['menu','🍽','tabMenu'],['fin','💰','tabFin']].map(([k,e,l]) =>
+    `<button class="${ui.tab===k?'on':''}" data-a="tab" data-v="${k}"><span>${e}</span><span>${t(l)}</span></button>`).join('');
+}
+function render(){
+  renderChrome();
+  $('#view').innerHTML = ui.tab === 'menu' ? vMenu() : vFin();
+  if (ui.tab === 'menu' && ui.sub === 'recipes') renderRList();
+}
+function cuisineChips(){
+  return `<div class="chips">${['all','uzbek','turkic','intl'].map(c =>
+    `<button class="chip ${cfg.cuisine===c?'on':''}" data-a="cuisine" data-v="${c}">${c==='all'?'🍽':FLAG[c]} ${t(c)}</button>`).join('')}</div>`;
+}
+function vMenu(){
+  const seg = `<div class="seg">${['today','week','recipes','shop'].map(s =>
+    `<button class="${ui.sub===s?'on':''}" data-a="sub" data-v="${s}">${t(s)}</button>`).join('')}</div>`;
+  let body = '';
+  if (ui.sub === 'today') body = cuisineChips() + vToday();
+  else if (ui.sub === 'week') body = cuisineChips() + vWeek();
+  else if (ui.sub === 'recipes') body = cuisineChips() + vRecipes();
+  else body = vShop();
+  return seg + body;
+}
+function vToday(){
+  let kcal = 0;
+  const cards = SLOTS.map(c => {
+    const r = byId(menu.today.s[c]); kcal += r.kcal;
+    return `<div class="card"><div class="slot">
+      <button class="slot" data-a="open" data-v="${r.id}" style="flex:1;min-width:0">
+        <div class="emo">${EMO[c]}</div>
+        <div class="body"><div class="lbl">${t(c)}</div><div class="nm">${esc(r.name[li()])}</div>
+        <div class="meta">${FLAG[r.cu]} ${r.kcal} ${t('kcal')} · ⏱ ${r.min} ${t('min')}</div></div>
+      </button>
+      <button class="reroll" data-a="reroll" data-v="${c}" aria-label="shuffle">🔄</button>
+    </div></div>`;
+  }).join('');
+  return cards + `<div class="total"><span>${t('dayTotal')}</span><b>≈ ${fmtNum(kcal)} ${t('kcal')}</b></div>
+    <button class="btn primary" data-a="newToday">${t('newMenu')}</button>`;
+}
+function vWeek(){
+  const now = todayISO();
+  const days = menu.week.days.map((d, i) => {
+    const date = addDays(menu.week.start, i), dl = dayLabel(date);
+    return `<div class="card day ${date===now?'now':''}"><h3>${dl.wd}<span>${dl.dm}</span></h3>
+      ${SLOTS.map(c => { const r = byId(d[c]); return `<button class="mini" data-a="open" data-v="${r.id}"><span>${EMO[c]}</span><span>${esc(r.name[li()])}</span></button>`; }).join('')}
+    </div>`;
+  }).join('');
+  return `<div class="row2"><button class="btn" data-a="newWeek">${t('newWeek')}</button><button class="btn primary" data-a="sub" data-v="shop">${t('toShop')}</button></div>` + days;
+}
+function vRecipes(){
+  return `<div class="chips">
+      <button class="chip ${ui.rcat==='all'?'on':''}" data-a="rcat" data-v="all">${t('all')}</button>
+      ${SLOTS.map(c => `<button class="chip ${ui.rcat===c?'on':''}" data-a="rcat" data-v="${c}">${EMO[c]} ${t(c)}</button>`).join('')}
+      <button class="chip ${ui.favOnly?'on':''}" data-a="favOnly">${t('favs')}</button>
+    </div>
+    <input class="search" data-f="q" placeholder="${t('search')}" value="${esc(ui.q)}">
+    <div id="rlist"></div>`;
+}
+function renderRList(){
+  const q = ui.q.trim().toLowerCase();
+  const list = RECIPES.filter(r =>
+    (cfg.cuisine === 'all' || r.cu === cfg.cuisine) && (ui.rcat === 'all' || r.cat === ui.rcat) &&
+    (!ui.favOnly || menu.favs.includes(r.id)) &&
+    (!q || (r.name[0] + ' ' + r.name[1] + ' ' + r.ing[li()].join(' ')).toLowerCase().includes(q)));
+  $('#rlist').innerHTML = list.length ? list.map(r => `<div class="card"><button class="rcard slot" data-a="open" data-v="${r.id}">
+      <div class="emo">${EMO[r.cat]}</div>
+      <div class="body"><div class="nm">${menu.favs.includes(r.id)?'❤️ ':''}${esc(r.name[li()])}</div>
+      <div class="meta">${FLAG[r.cu]} ${t(r.cu)} · ${t(r.cat)} · ${r.kcal} ${t('kcal')} · ⏱ ${r.min} ${t('min')}</div></div></button></div>`).join('')
+    : `<div class="empty">${t('noFound')}</div>`;
+}
+function vShop(){
+  const items = shopItems();
+  if (!items.length) return `<div class="empty">—</div>`;
+  const dl0 = dayLabel(menu.week.start), dl6 = dayLabel(addDays(menu.week.start, 6));
+  return `<div class="meta" style="margin:0 4px 8px">${t('shopHint')}: ${dl0.dm} – ${dl6.dm}</div>
+    <div class="card">${items.map(([n, c]) => { const k = encodeURIComponent(n); const on = menu.shop[n];
+      return `<button class="check ${on?'done':''}" data-a="shopTog" data-v="${k}"><span class="box">${on?'✓':''}</span><span class="t">${esc(n)}</span><span class="c">${c} ${t('inRecipes')}</span></button>`; }).join('')}</div>
+    <button class="btn" data-a="shopClear">${t('shopClear')}</button>`;
+}
+
+function vFin(){
+  const [y, m] = ui.month.split('-').map(Number);
+  const list = tx.filter(x => x[4].slice(0, 7) === ui.month).sort((a, b) => b[4].localeCompare(a[4]) || (b[0] > a[0] ? 1 : -1));
+  let inc = 0, exp = 0; list.forEach(x => { if (x[1] === 'i') inc += x[2]; else exp += x[2]; });
+  const bal = inc - exp;
+  let h = `<div class="month"><button data-a="month" data-v="-1">‹</button><b>${t('months')[m-1]} ${y}</b><button data-a="month" data-v="1">›</button></div>
+  <div class="sum">
+    <div class="card full"><div class="k">${t('balance')}</div><div class="v ${bal<0?'neg':''}">${bal<0?'−':''}${money(Math.abs(bal))}</div></div>
+    <div class="card"><div class="k">⬆️ ${t('income')}</div><div class="v pos">${money(inc)}</div></div>
+    <div class="card"><div class="k">⬇️ ${t('expense')}</div><div class="v neg">${money(exp)}</div></div>
+  </div>
+  <div class="row2"><button class="btn" data-a="addTx" data-v="i" style="color:var(--green)">＋ ${t('income')}</button><button class="btn primary" data-a="addTx" data-v="e">− ${t('expense')}</button></div>`;
+  if (cfg.budget > 0) {
+    const pct = Math.min(100, exp / cfg.budget * 100), over = exp > cfg.budget;
+    h += `<div class="card"><div class="catrow"><div class="h"><span>🎯 ${t('budget')}</span><span>${money(cfg.budget)}</span></div>
+      <div class="bar ${over?'over':''}"><i style="width:${pct}%"></i></div>
+      <div class="meta" style="margin-top:4px">${over ? money(exp - cfg.budget) + ' ' + t('over') : money(cfg.budget - exp) + ' ' + t('left')}</div></div></div>`;
+  }
+  const byCat = {}; list.filter(x => x[1] === 'e').forEach(x => byCat[x[3]] = (byCat[x[3]] || 0) + x[2]);
+  const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+  if (cats.length) {
+    const max = cats[0][1];
+    h += `<div class="sec">${t('byCat')}</div><div class="card">${cats.map(([k, v]) => { const c = catInfo('e', k);
+      return `<div class="catrow"><div class="h"><span>${c[1]} ${esc(c[li()+2])}</span><span>${money(v)} <span class="meta">${Math.round(v/exp*100)}%</span></span></div><div class="bar"><i style="width:${v/max*100}%"></i></div></div>`; }).join('')}</div>`;
+  }
+  h += `<div class="sec">${t('history')}</div>`;
+  if (!list.length) return h + `<div class="card empty">${t('noTx')}</div>`;
+  let cur = '', rows = '';
+  list.forEach(x => {
+    if (x[4] !== cur) { if (cur) rows += '</div>'; cur = x[4]; const dl = dayLabel(cur); rows += `<div class="meta" style="margin:10px 4px 4px">${dl.dm}, ${dl.wd}</div><div class="card">`; }
+    const c = catInfo(x[1], x[3]);
+    rows += `<button class="tx" data-a="openTx" data-v="${x[0]}"><span class="emo">${c[1]}</span><span class="body"><div>${esc(c[li()+2])}</div><div class="meta">${esc([x[6], x[5]].filter(Boolean).join(' · '))}</div></span><span class="amt ${x[1]==='i'?'pos':'neg'}">${x[1]==='i'?'+':'−'}${fmtNum(x[2])}</span></button>`;
+  });
+  return h + rows + '</div>';
+}
+
+/* ================= Sheets ================= */
+function openSheet(s){ ui.sheet = s; renderSheet(); $('#sheetWrap').classList.remove('hidden'); try { if (inTG) tg.BackButton.show(); } catch (e) {} }
+function closeSheet(){ ui.sheet = null; $('#sheetWrap').classList.add('hidden'); try { if (inTG) tg.BackButton.hide(); } catch (e) {} }
+function renderSheet(){
+  const s = ui.sheet; if (!s) return;
+  let h = '<div class="grab"></div>';
+  if (s.kind === 'recipe') h += shRecipe(byId(s.id));
+  else if (s.kind === 'txNew') h += shTxNew();
+  else if (s.kind === 'txView') h += shTxView(tx.find(x => x[0] === s.id));
+  else if (s.kind === 'settings') h += shSettings();
+  $('#sheet').innerHTML = h;
+}
+function shRecipe(r){
+  const fav = menu.favs.includes(r.id);
+  return `<div style="font-size:40px">${EMO[r.cat]}</div><h2>${esc(r.name[li()])}</h2>
+    <div class="meta">${FLAG[r.cu]} ${t(r.cu)} · ${t(r.cat)}</div>
+    <div class="stats"><div><b>${r.kcal}</b>${t('kcal')} · ${t('perServ')}</div><div><b>${r.min}</b>${t('min')}</div></div>
+    <div class="note">💚 <b>${t('why')}:</b> ${esc(r.note[li()])}</div>
+    <div class="sec">${t('ingredients')}</div>
+    <div class="card"><ul class="ing">${r.ing[li()].map(x => { const [n, q] = x.split(':'); return `<li>${esc(n.trim())}<span>${esc((q || '').trim())}</span></li>`; }).join('')}</ul></div>
+    <div class="sec">${t('steps')}</div>
+    <div class="card"><ol class="steps">${r.steps[li()].map(x => `<li>${esc(x)}</li>`).join('')}</ol></div>
+    <div class="row2"><button class="btn" data-a="fav" data-v="${r.id}">${fav ? t('inFav') : t('addFav')}</button>
+    <button class="btn primary" data-a="toToday" data-v="${r.id}">＋ ${t('toToday')}</button></div>`;
+}
+function shTxNew(){
+  const d = ui.draft;
+  return `<div class="seg"><button class="${d.type==='e'?'on':''}" data-a="dType" data-v="e">⬇️ ${t('expense')}</button><button class="${d.type==='i'?'on':''}" data-a="dType" data-v="i">⬆️ ${t('income')}</button></div>
+    <div class="field"><label>${t('amount')}, ${t('cur')}</label><input class="input big" data-f="amount" inputmode="numeric" placeholder="0" value="${d.amount ? fmtNum(d.amount) : ''}"></div>
+    <div class="field"><label>${t('category')}</label><div class="grid">${CATS[d.type].map(c =>
+      `<button class="chip ${d.cat===c[0]?'on':''}" data-a="dCat" data-v="${c[0]}">${c[1]} ${esc(c[li()+2])}</button>`).join('')}</div></div>
+    ${cfg.members.length ? `<div class="field"><label>${t('who')}</label><div class="grid">${cfg.members.map((m, i) =>
+      `<button class="chip ${d.member===m?'on':''}" data-a="dMember" data-v="${i}">${esc(m)}</button>`).join('')}</div></div>` : ''}
+    <div class="field"><label>${t('date')}</label><input class="input" type="date" data-f="date" value="${d.date}"></div>
+    <div class="field"><label>${t('note')}</label><input class="input" data-f="note" maxlength="80" placeholder="${t('notePh')}" value="${esc(d.note)}"></div>
+    <button class="btn primary" data-a="saveTx">${t('save')}</button>`;
+}
+function shTxView(x){
+  if (!x) return '';
+  const c = catInfo(x[1], x[3]), dl = dayLabel(x[4]);
+  return `<div style="font-size:40px">${c[1]}</div><h2 class="${x[1]==='i'?'pos':'neg'}">${x[1]==='i'?'+':'−'}${money(x[2])}</h2>
+    <div class="card" style="margin-top:12px"><ul class="ing">
+      <li>${t('category')}<span>${esc(c[li()+2])}</span></li>
+      <li>${t('date')}<span>${dl.dm}, ${dl.wd}</span></li>
+      ${x[6] ? `<li>${t('who')}<span>${esc(x[6])}</span></li>` : ''}
+      ${x[5] ? `<li>${t('note')}<span>${esc(x[5])}</span></li>` : ''}
+    </ul></div>
+    <button class="btn danger" data-a="delTx" data-v="${x[0]}">🗑 ${t('delete')}</button>`;
+}
+function shSettings(){
+  return `<h2>⚙️ ${t('settings')}</h2>
+    <div class="sec">${t('language')}</div>
+    <div class="seg"><button class="${cfg.lang==='uz'?'on':''}" data-a="lang" data-v="uz">🇺🇿 O'zbekcha</button><button class="${cfg.lang==='en'?'on':''}" data-a="lang" data-v="en">🇬🇧 English</button></div>
+    <div class="sec">${t('members')}</div>
+    <div class="card"><div class="grid" style="margin-bottom:10px">${cfg.members.map((m, i) =>
+      `<button class="chip" data-a="rmMember" data-v="${i}">${esc(m)} ✕</button>`).join('')}</div>
+      <div class="row2"><input class="input" data-f="newMember" placeholder="${t('memberPh')}" maxlength="20" value="${esc(ui.newMember)}"><button class="btn primary" style="width:auto;margin:0;padding:0 16px" data-a="addMember">${t('addMember')}</button></div></div>
+    <div class="sec">${t('budget')}, ${t('cur')}</div>
+    <input class="input" data-f="budget" inputmode="numeric" placeholder="${t('budgetPh')}" value="${cfg.budget ? fmtNum(cfg.budget) : ''}">
+    <p class="meta" style="margin:16px 4px 0">${useCloud ? '☁️ ' + t('storeCloud') : '💻 ' + t('storeLocal')}</p>`;
+}
+
+/* ================= Actions ================= */
+const ACT = {
+  tab: v => { ui.tab = v; haptic(); render(); window.scrollTo(0, 0); },
+  sub: v => { ui.sub = v; render(); window.scrollTo(0, 0); },
+  cuisine: v => { cfg.cuisine = v; save('cfg'); render(); },
+  reroll: v => { menu.today.s[v] = pick(v, [menu.today.s[v]]); save('menu'); haptic(); render(); },
+  newToday: () => { genToday(); haptic(); render(); },
+  newWeek: () => { genWeek(); haptic(); render(); },
+  open: v => openSheet({kind:'recipe', id:v}),
+  rcat: v => { ui.rcat = v; render(); },
+  favOnly: () => { ui.favOnly = !ui.favOnly; render(); },
+  fav: v => { const i = menu.favs.indexOf(v); i < 0 ? menu.favs.push(v) : menu.favs.splice(i, 1); save('menu'); haptic(); renderSheet(); if (ui.sub === 'recipes') renderRList(); },
+  toToday: v => { const r = byId(v); menu.today.s[r.cat] = v; save('menu'); closeSheet(); haptic('ok'); toast(t('added')); if (ui.sub === 'today') render(); },
+  shopTog: v => { const n = decodeURIComponent(v); menu.shop[n] = !menu.shop[n]; save('menu'); haptic(); render(); },
+  shopClear: () => { menu.shop = {}; save('menu'); render(); },
+  month: v => { const [y, m] = ui.month.split('-').map(Number); const d = new Date(y, m - 1 + (+v), 1); ui.month = d.getFullYear() + '-' + pad(d.getMonth() + 1); render(); },
+  addTx: v => { ui.draft = {type:v, amount:0, cat:CATS[v][0][0], member:cfg.members[0] || '', date:todayISO(), note:''}; openSheet({kind:'txNew'}); },
+  dType: v => { ui.draft.type = v; ui.draft.cat = CATS[v][0][0]; renderSheet(); },
+  dCat: v => { ui.draft.cat = v; haptic(); renderSheet(); },
+  dMember: v => { const m = cfg.members[+v]; ui.draft.member = ui.draft.member === m ? '' : m; renderSheet(); },
+  saveTx: () => {
+    const d = ui.draft; if (!(d.amount > 0)) { toast(t('enterAmount')); return; }
+    tx.push([Date.now().toString(36) + Math.random().toString(36).slice(2, 5), d.type, d.amount, d.cat, d.date || todayISO(), d.note.trim(), d.member]);
+    save('tx'); ui.month = (d.date || todayISO()).slice(0, 7); closeSheet(); haptic('ok'); toast(t('saved')); render();
+  },
+  openTx: v => openSheet({kind:'txView', id:v}),
+  delTx: async v => { if (!(await confirmBox(t('confirmDel')))) return; tx = tx.filter(x => x[0] !== v); save('tx'); closeSheet(); toast(t('deleted')); render(); },
+  settings: () => openSheet({kind:'settings'}),
+  lang: v => { cfg.lang = v; save('cfg'); render(); renderSheet(); },
+  rmMember: v => { cfg.members.splice(+v, 1); save('cfg'); renderSheet(); },
+  addMember: () => { const n = ui.newMember.trim(); if (!n || cfg.members.includes(n)) return; cfg.members.push(n); ui.newMember = ''; save('cfg'); renderSheet(); },
+  close: () => closeSheet()
+};
+document.addEventListener('click', e => { const el = e.target.closest('[data-a]'); if (!el) return; const f = ACT[el.dataset.a]; if (f) f(el.dataset.v, el); });
+document.addEventListener('input', e => {
+  const el = e.target, f = el.dataset && el.dataset.f; if (!f) return;
+  if (f === 'q') { ui.q = el.value; renderRList(); }
+  else if (f === 'amount' || f === 'budget') {
+    const digits = el.value.replace(/\D/g, '').slice(0, 13);
+    el.value = digits ? fmtNum(digits) : '';
+    if (f === 'amount') ui.draft.amount = +digits; else { cfg.budget = +digits; save('cfg'); }
+  }
+  else if (f === 'note' || f === 'date') ui.draft[f] = el.value;
+  else if (f === 'newMember') ui.newMember = el.value;
+});
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.dataset && e.target.dataset.f === 'newMember') ACT.addMember(); });
+try { if (inTG) tg.BackButton.onClick(closeSheet); } catch (e) {}
+
+/* ================= Init ================= */
+(async function init(){
+  try {
+    const [c, m, x] = await Promise.all([Store.get('cfg'), Store.get('menu'), Store.get('tx')]);
+    if (c) Object.assign(cfg, c);
+    if (m) menu = Object.assign(menu, m);
+    if (Array.isArray(x)) tx = x;
+  } catch (e) {}
+  if (!cfg.members) { cfg.members = T[cfg.lang].defMembers.slice(); save('cfg'); }
+  if (!menu.today || menu.today.date !== todayISO()) genToday();
+  if (!menu.week || menu.week.start !== mondayISO()) genWeek();
+  menu.today.s && SLOTS.forEach(c => { if (!byId(menu.today.s[c])) menu.today.s[c] = pick(c); });
+  ui.month = todayISO().slice(0, 7);
+  render();
+})();
+</script>
+</body>
+</html>
